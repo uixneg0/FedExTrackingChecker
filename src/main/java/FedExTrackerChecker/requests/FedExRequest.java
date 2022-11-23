@@ -1,6 +1,8 @@
 package FedExTrackerChecker.requests;
 
 import FedExTrackerChecker.Main;
+import FedExTrackerChecker.oauth.OAuthJsonParser;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import okhttp3.*;
 
@@ -14,11 +16,15 @@ public class FedExRequest {
 
     public static Response getTrackingResults(ArrayList<Long> trackingNumbers) throws IOException {
         JsonObject baseJson = new JsonObject();
-        JsonObject trackingNumberInfo = new JsonObject();
+        JsonArray trackingInfo = new JsonArray();
         for (Long trackingNumber : trackingNumbers) {
-            trackingNumberInfo.addProperty("trackingNumber", trackingNumber);
+            JsonObject containerObject = new JsonObject();
+            JsonObject trackingNumberInfo = new JsonObject();
+            trackingNumberInfo.addProperty("trackingNumber", trackingNumber.toString());
+            containerObject.add("trackingNumberInfo", trackingNumberInfo);
+            trackingInfo.add(containerObject);
         }
-        baseJson.add("trackingNumberInfo", trackingNumberInfo);
+        baseJson.add("trackingInfo", trackingInfo);
         HashMap<String, String> headerFields = new HashMap<>();
         headerFields.put("Content-Type", "application/json");
         headerFields.put("X-Locale", "en_US");
@@ -35,8 +41,7 @@ public class FedExRequest {
             requestBuilder.addHeader(key, headerFields.get(key));
         }
         Request request = requestBuilder.build();
-        Response response = client.newCall(request).execute();
-        return response;
+        return client.newCall(request).execute();
     }
 
     public static Response sendOAuthRequest(HashMap<String, String> bodyFields, HashMap<String, String> headerFields, String url) throws IOException {

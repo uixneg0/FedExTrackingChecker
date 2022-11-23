@@ -11,6 +11,7 @@
           <option value="  grant_type" />
           <option value="  client_id" />
           <option value="  client_secret" />
+          <option value="X-locale" />
         </set>
       </option>
     </inspection_tool>

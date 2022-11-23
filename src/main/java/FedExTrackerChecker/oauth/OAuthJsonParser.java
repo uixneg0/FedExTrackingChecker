@@ -1,7 +1,6 @@
-package FedExTrackerChecker.requests;
+package FedExTrackerChecker.oauth;
 
 import FedExTrackerChecker.Main;
-import FedExTrackerChecker.entities.OAuthJson;
 import com.google.gson.Gson;
 import lombok.Getter;
 

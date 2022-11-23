@@ -20,6 +20,7 @@ public class Main {
     public static void main(String... args) throws IllegalAccessException, IOException, InvalidFormatException {
         oAuthToken = FedExRequest.getOAuthToken();
         trackingFolder = getTrackingFolder();
+
         if (trackingFolder.listFiles() == null) exit("No files found within folder");
         for (File file : Objects.requireNonNull(trackingFolder.listFiles())) {
             if (file.getName().contains("xlsx") || file.getName().contains("xls")) {
@@ -27,6 +28,7 @@ public class Main {
                 trackingSets.add(trackingSet);
             }
         }
+
 
         for (ArrayList trackingSet : trackingSets) {
             ArrayList<ArrayList<Long>> segmentedTracking = new ArrayList<>();
@@ -43,9 +45,10 @@ public class Main {
                 }
             }
 
-            ArrayList<Response> responses = new ArrayList<>();
+            ArrayList<Response> responses = new ArrayList<>(); //todo add threading here tmrw when parsing responses
             for (ArrayList<Long> trackingSegment : segmentedTracking) {
-                responses.add(FedExRequest.getTrackingResults(trackingSegment));
+                Response response = FedExRequest.getTrackingResults(trackingSegment);
+                responses.add(response);
             }
         }
     }

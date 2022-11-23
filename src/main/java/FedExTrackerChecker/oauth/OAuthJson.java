@@ -1,4 +1,4 @@
-package FedExTrackerChecker.entities;
+package FedExTrackerChecker.oauth;
 
 import lombok.Getter;
 
