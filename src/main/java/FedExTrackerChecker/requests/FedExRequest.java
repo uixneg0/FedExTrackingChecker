@@ -32,7 +32,7 @@ public class FedExRequest {
         return jsonPostRequest(baseJson, headerFields, getTrackingUrl);
     }
 
-    public static Response jsonPostRequest(JsonObject jsonObject, HashMap<String, String> headerFields, String url) throws IOException {
+    public static Response jsonPostRequest(JsonObject jsonObject, HashMap<String, String> headerFields, String url) throws IOException { // TODO actually make a reusable request function if I do more with this project
         OkHttpClient client = new OkHttpClient();
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(url);
@@ -44,7 +44,7 @@ public class FedExRequest {
         return client.newCall(request).execute();
     }
 
-    public static Response sendOAuthRequest(HashMap<String, String> bodyFields, HashMap<String, String> headerFields, String url) throws IOException {
+    public static Response sendOAuthRequest(HashMap<String, String> bodyFields, HashMap<String, String> headerFields, String url) throws IOException { // TODO actually make a reusable request function if I do more with this project
         OkHttpClient client = new OkHttpClient();
         FormBody.Builder builder = new FormBody.Builder();
         for (String key : bodyFields.keySet())

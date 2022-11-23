@@ -24,6 +24,10 @@ dependencies {
     implementation 'org.apache.poi:poi:5.2.3'
     // https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
+    // https://mvnrepository.com/artifact/org.jsonschema2pojo/jsonschema2pojo-core
+    implementation 'org.jsonschema2pojo:jsonschema2pojo-core:1.1.2'
 
 
 }

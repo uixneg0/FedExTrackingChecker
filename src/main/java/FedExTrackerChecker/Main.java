@@ -16,7 +16,7 @@ public class Main {
     public static ArrayList<ArrayList<Long>> trackingSets = new ArrayList<>();  // Represents tracking numbers of each individual file
 
 
-    public static void main(String... args) throws IllegalAccessException, IOException, InvalidFormatException {
+    public static void main(String... args) throws IllegalAccessException, IOException, InvalidFormatException, InterruptedException {
         oAuthToken = FedExRequest.getOAuthToken();
         trackingFolder = getTrackingFolder();
 
@@ -27,16 +27,27 @@ public class Main {
                 trackingSets.add(trackingSet);
             }
         }
+
         ArrayList<Thread> threads = new ArrayList<>();
         for (ArrayList<Long> trackingSet : trackingSets) {
-            Thread t = new Thread(() -> ExcelUtils.dumpTrackingSet(trackingSet));
+            Thread t = new Thread(() -> {
+                try {
+                    ExcelUtils.dumpTrackingSet(trackingSet);
+                } catch (IOException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             threads.add(t);
             t.start();
         }
+
         outer:
         while (true) {
             for (Thread thread : threads) {
-                if (thread.isAlive()) continue outer;
+                if (thread.isAlive()) {
+                    Thread.sleep(50);
+                    continue outer;
+                }
             }
             break;
         }

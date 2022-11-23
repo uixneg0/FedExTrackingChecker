@@ -2,6 +2,7 @@ package FedExTrackerChecker.excel;
 
 import FedExTrackerChecker.entities.RowData;
 import FedExTrackerChecker.requests.FedExRequest;
+import FedExTrackerChecker.requests.ResponseParser;
 import okhttp3.Response;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -13,7 +14,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ExcelUtils {
     public static ArrayList<Long> getTrackingNumbers(File file) throws IOException, InvalidFormatException {
@@ -49,11 +49,11 @@ public class ExcelUtils {
         sheet.setColumnWidth(0, 6000);
         sheet.setColumnWidth(1, 4000);
 
-        Row header = sheet.createRow(0);
-        header.getCell(0).setCellValue("Tracking Number");
+        //      Row header = sheet.createRow(0);
+//        header.getCell(0).setCellValue("Tracking Number");
     }
 
-    public static void dumpTrackingSet(ArrayList<Long> trackingSet) {
+    public static void dumpTrackingSet(ArrayList<Long> trackingSet) throws IOException, InterruptedException {
         ArrayList<ArrayList<Long>> segmentedTracking = new ArrayList<>();
         ArrayList<Long> currSet = new ArrayList<>();
         int count = 0;
@@ -68,9 +68,10 @@ public class ExcelUtils {
             }
         }
 
-        HashMap<ArrayList<Long>, Response> responseMap = new HashMap<>();
+        ArrayList<Response> responses = new ArrayList<>();
         ArrayList<Thread> threads = new ArrayList<>();
         for (ArrayList<Long> trackingSegment : segmentedTracking) {
+            Thread.sleep(50);
             Thread thread =
                     new Thread(() -> {
                         Response response;
@@ -79,7 +80,7 @@ public class ExcelUtils {
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
-                        responseMap.put(trackingSegment, response);
+                        responses.add(response);
                     });
             threads.add(thread);
             thread.start();
@@ -91,5 +92,12 @@ public class ExcelUtils {
             }
             break;
         }
+
+        ArrayList<RowData> rowData = new ArrayList<>();
+        for (Response response : responses) {
+            rowData.addAll(ResponseParser.parseResponses(response));
+        }
+
+        buildResultsFile(rowData);
     }
 }
