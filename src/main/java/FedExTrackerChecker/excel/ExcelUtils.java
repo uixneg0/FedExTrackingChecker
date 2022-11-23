@@ -46,11 +46,21 @@ public class ExcelUtils {
     public static void buildResultsFile(ArrayList<RowData> rowData) {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Tracking Results");
-        sheet.setColumnWidth(0, 6000);
-        sheet.setColumnWidth(1, 4000);
+//        sheet.setColumnWidth(0, 6000);
+//        sheet.setColumnWidth(1, 4000);
 
-        //      Row header = sheet.createRow(0);
-//        header.getCell(0).setCellValue("Tracking Number");
+        Row header = sheet.createRow(0); //TODO SET HEADERS
+        header.createCell(0).setCellValue("Tracking Number");
+        header.createCell(1).setCellValue("Tracking Number");
+        header.createCell(2).setCellValue("Tracking Number");
+        header.createCell(3).setCellValue("Tracking Number");
+        header.createCell(4).setCellValue("Tracking Number");
+        header.createCell(5).setCellValue("Tracking Number");
+        header.createCell(6).setCellValue("Tracking Number");
+        header.createCell(7).setCellValue("Tracking Number");
+        for (int i = 1; i <= rowData.size(); i++) {
+            Row row = sheet.createRow(i);
+        }
     }
 
     public static void dumpTrackingSet(ArrayList<Long> trackingSet) throws IOException, InterruptedException {

@@ -1,12 +1,8 @@
 package FedExTrackerChecker.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@AllArgsConstructor
+@Data
 public class RowData {
     private final String trackingNumber;
     private final String packageWeight;
