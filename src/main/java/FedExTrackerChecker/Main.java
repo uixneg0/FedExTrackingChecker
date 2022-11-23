@@ -1,8 +1,7 @@
 package FedExTrackerChecker;
 
-import FedExTrackerChecker.excel.ExcelParser;
+import FedExTrackerChecker.excel.ExcelUtils;
 import FedExTrackerChecker.requests.FedExRequest;
-import okhttp3.Response;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import java.io.File;
@@ -24,33 +23,24 @@ public class Main {
         if (trackingFolder.listFiles() == null) exit("No files found within folder");
         for (File file : Objects.requireNonNull(trackingFolder.listFiles())) {
             if (file.getName().contains("xlsx") || file.getName().contains("xls")) {
-                ArrayList<Long> trackingSet = ExcelParser.getTrackingNumbers(file);
+                ArrayList<Long> trackingSet = ExcelUtils.getTrackingNumbers(file);
                 trackingSets.add(trackingSet);
             }
         }
-
-
-        for (ArrayList trackingSet : trackingSets) {
-            ArrayList<ArrayList<Long>> segmentedTracking = new ArrayList<>();
-            ArrayList<Long> currSet = new ArrayList<>();
-            int count = 0;
-            for (int i = 0; i < trackingSet.size(); i++) {
-                count++;
-                currSet.add((Long) trackingSet.get(i));
-
-                if (count >= 30 || i == trackingSet.size() - 1) {
-                    segmentedTracking.add(currSet);
-                    currSet = new ArrayList<>();
-                    count = 0;
-                }
-            }
-
-            ArrayList<Response> responses = new ArrayList<>(); //todo add threading here tmrw when parsing responses
-            for (ArrayList<Long> trackingSegment : segmentedTracking) {
-                Response response = FedExRequest.getTrackingResults(trackingSegment);
-                responses.add(response);
-            }
+        ArrayList<Thread> threads = new ArrayList<>();
+        for (ArrayList<Long> trackingSet : trackingSets) {
+            Thread t = new Thread(() -> ExcelUtils.dumpTrackingSet(trackingSet));
+            threads.add(t);
+            t.start();
         }
+        outer:
+        while (true) {
+            for (Thread thread : threads) {
+                if (thread.isAlive()) continue outer;
+            }
+            break;
+        }
+        System.out.println("Done!");
     }
 
 
