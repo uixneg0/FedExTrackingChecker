@@ -1,18 +1,36 @@
 package FedExTrackerChecker.entities;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-@Data
+@Getter
+@AllArgsConstructor
 public class RowData {
-    private final String trackingNumber;
-    private final String packageWeight;
-    private final String sequenceNumber;
-    private final String shipperCity;
-    private final String actualDeliveryAddressCity;
-    private final String deliveryAttempts;
-    private final String deliverySignature;
-    private final String eventDescription;
-    private final String reference1;
-    private final String reference2;
-    private final String reference3;
+    public final String trackingNumber;
+    public final String dateAndTimeType;
+    public final String dateAndTimeTime;
+    public final String deliveryCity;
+    public final String deliveryState;
+    public final String deliveryAttempts;
+    public final String deliveryReceivedBy;
+    public final String deliveryDestinationServiceArea;
+    public final String latestDescription;
+    public final String weight;
+    public final String customerReference;
+    public final String purchaseOrder;
+
+    public RowData(String trackingNumber) {
+        this.trackingNumber = trackingNumber;
+        dateAndTimeType = null;
+        dateAndTimeTime = null;
+        deliveryCity = null;
+        deliveryState = null;
+        deliveryAttempts = null;
+        deliveryReceivedBy = null;
+        deliveryDestinationServiceArea = null;
+        latestDescription = null;
+        weight = null;
+        customerReference = null;
+        purchaseOrder = null;
+    }
 }

@@ -1,5 +1,6 @@
 package FedExTrackerChecker.excel;
 
+import FedExTrackerChecker.Main;
 import FedExTrackerChecker.entities.RowData;
 import FedExTrackerChecker.requests.FedExRequest;
 import FedExTrackerChecker.requests.ResponseParser;
@@ -12,8 +13,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class ExcelUtils {
     public static ArrayList<Long> getTrackingNumbers(File file) throws IOException, InvalidFormatException {
@@ -46,20 +51,46 @@ public class ExcelUtils {
     public static void buildResultsFile(ArrayList<RowData> rowData) {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Tracking Results");
-//        sheet.setColumnWidth(0, 6000);
-//        sheet.setColumnWidth(1, 4000);
+        int headers = 0;
+        Row header = sheet.createRow(0);
+        for (int i = 0; i < RowData.class.getDeclaredFields().length; i++) {
+            String fieldName = RowData.class.getDeclaredFields()[i].getName();
+            Cell c = header.createCell(i);
+            c.setCellValue(fieldName);
+            headers++;
+        }
 
-        Row header = sheet.createRow(0); //TODO SET HEADERS
-        header.createCell(0).setCellValue("Tracking Number");
-        header.createCell(1).setCellValue("Tracking Number");
-        header.createCell(2).setCellValue("Tracking Number");
-        header.createCell(3).setCellValue("Tracking Number");
-        header.createCell(4).setCellValue("Tracking Number");
-        header.createCell(5).setCellValue("Tracking Number");
-        header.createCell(6).setCellValue("Tracking Number");
-        header.createCell(7).setCellValue("Tracking Number");
         for (int i = 1; i <= rowData.size(); i++) {
             Row row = sheet.createRow(i);
+            RowData dataRow = rowData.get(i - 1);
+            for (int j = 0; j < RowData.class.getDeclaredFields().length; j++) {
+                try {
+                    Object fieldValue = RowData.class.getDeclaredFields()[j].get(dataRow);
+                    Cell c = row.createCell(j);
+                    c.setCellValue(String.valueOf(fieldValue));
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        }
+
+        for (int i = 0; i < headers; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        try {
+            String randomString = UUID.randomUUID().toString().substring(0, 4);
+            LocalDateTime localDateTime = LocalDateTime.now();
+            String time = localDateTime.getHour() + " " + localDateTime.getMinute();
+            File folder = new File(Main.getTrackingFolder() + "/CheckedTracking");
+            folder.mkdirs();
+            FileOutputStream out = new FileOutputStream(folder.getAbsolutePath() + "/" + rowData.get(0).getCustomerReference() + " " + time + " " + randomString + ".xlsx");
+            workbook.write(out);
+
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -78,10 +109,10 @@ public class ExcelUtils {
             }
         }
 
-        ArrayList<Response> responses = new ArrayList<>();
+        HashMap<ArrayList<Long>, Response> responses = new HashMap<>();
         ArrayList<Thread> threads = new ArrayList<>();
         for (ArrayList<Long> trackingSegment : segmentedTracking) {
-            Thread.sleep(50);
+            Thread.sleep(100); // should work to limit under 1400 transactions/10seconds
             Thread thread =
                     new Thread(() -> {
                         Response response;
@@ -90,7 +121,7 @@ public class ExcelUtils {
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
-                        responses.add(response);
+                        responses.put(trackingSegment, response);
                     });
             threads.add(thread);
             thread.start();
@@ -104,8 +135,14 @@ public class ExcelUtils {
         }
 
         ArrayList<RowData> rowData = new ArrayList<>();
-        for (Response response : responses) {
-            rowData.addAll(ResponseParser.parseResponses(response));
+        for (ArrayList<Long> trackingSegment : responses.keySet()) {
+            ArrayList<RowData> parsedData = ResponseParser.parseResponse(responses.get(trackingSegment));
+            if (parsedData.isEmpty()) {
+                for (Long trackingNumber : trackingSegment) {
+                    parsedData.add(new RowData(String.valueOf(trackingNumber)));
+                }
+            }
+            rowData.addAll(parsedData);
         }
 
         buildResultsFile(rowData);
