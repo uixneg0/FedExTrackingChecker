@@ -47,3 +47,4 @@ src/FedExTrackerChecker.main/resources/keys.txt
 *.http
 .idea/workspace.xml
 *.xml
+/src/main/resources/
