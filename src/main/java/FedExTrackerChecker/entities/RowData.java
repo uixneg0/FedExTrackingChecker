@@ -13,7 +13,6 @@ public class RowData {
     public final String deliveryState;
     public final String deliveryAttempts;
     public final String deliveryReceivedBy;
-    public final String deliveryDestinationServiceArea;
     public final String latestDescription;
     public final String weight;
     public final String customerReference;
@@ -27,7 +26,6 @@ public class RowData {
         deliveryState = null;
         deliveryAttempts = null;
         deliveryReceivedBy = null;
-        deliveryDestinationServiceArea = null;
         latestDescription = null;
         weight = null;
         customerReference = null;

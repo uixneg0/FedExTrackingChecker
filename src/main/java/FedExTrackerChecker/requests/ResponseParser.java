@@ -15,8 +15,12 @@ public class ResponseParser {
         ArrayList<RowData> rowDataList = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         BulkTrackingResponse parsedResponse = mapper.readValue(response.body().string(), BulkTrackingResponse.class);
-        if (parsedResponse == null || parsedResponse.getOutput() == null) {
-            System.out.println("Response was null or output was null.");
+        if (parsedResponse == null) {
+            System.out.println("Response was null.");
+            return rowDataList;
+        }
+        if (parsedResponse.getOutput() == null){
+            System.out.println("Output was null.");
             return rowDataList;
         }
         List<CompleteTrackResult> completeTrackResults = parsedResponse.getOutput().getCompleteTrackResults();
@@ -35,7 +39,6 @@ public class ResponseParser {
 
             String deliveryAttempts = getDeliveryAttempts(deliveryDetails);
             String deliveryReceivedBy = getDeliveryReceivedBy(deliveryDetails);
-            String deliveryDestinationServiceArea = getDeliveryDestinationServiceArea(deliveryDetails);
 
             LatestStatusDetail latestStatusDetail = getLatestStatusDetail(trackResult);
             String latestDescription = getLatestDescription(latestStatusDetail);
@@ -47,7 +50,7 @@ public class ResponseParser {
             List<PackageIdentifier> packageIdentifiers = getPackageIdentifiers(additionalTrackingInfo);
             String customerReference = getCustomerReference(packageIdentifiers);
             String purchaseOrder = getPurchaseOrder(packageIdentifiers);
-            rowDataList.add(new RowData(trackingNumber, dateAndTimeType, dateAndTimeTime, deliveryCity, deliveryState, deliveryAttempts, deliveryReceivedBy, deliveryDestinationServiceArea, latestDescription, weight, customerReference, purchaseOrder));
+            rowDataList.add(new RowData(trackingNumber, dateAndTimeType, dateAndTimeTime, deliveryCity, deliveryState, deliveryAttempts, deliveryReceivedBy, latestDescription, weight, customerReference, purchaseOrder));
         }
         return rowDataList;
     }
