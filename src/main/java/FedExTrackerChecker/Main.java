@@ -47,7 +47,7 @@ public class Main {
         while (true) {
             for (Thread thread : threads) {
                 if (thread.isAlive()) {
-                    Thread.sleep(50);
+                    Thread.sleep(150);
                     continue outer;
                 }
             }

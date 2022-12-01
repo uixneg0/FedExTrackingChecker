@@ -112,7 +112,7 @@ public class ExcelUtils {
         HashMap<ArrayList<Long>, Response> responses = new HashMap<>();
         ArrayList<Thread> threads = new ArrayList<>();
         for (ArrayList<Long> trackingSegment : segmentedTracking) {
-            Thread.sleep(100); // should work to limit under 1400 transactions/10seconds
+            Thread.sleep(200); // should work to limit under 1400 transactions/10seconds
             Thread thread =
                     new Thread(() -> {
                         Response response;
