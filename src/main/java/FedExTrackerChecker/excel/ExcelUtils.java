@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,9 +25,9 @@ public class ExcelUtils {
      * Takes an XLSX/XLS file as arg and parses the tracking numbers from the file.
      * Column header for tracking numbers must contain "tracking" as a substring.
      */
-    public static List<Long> parseTrackingNumbers(File file) throws IOException, InvalidFormatException {
+    public static List<Long> parseTrackingNumbers(FileInputStream fileInputStream) throws IOException, InvalidFormatException {
         List<Long> trackingNumbers = new ArrayList<>();
-        Workbook workbook = new XSSFWorkbook(file);
+        Workbook workbook = new XSSFWorkbook(fileInputStream);
         Sheet sheet = workbook.getSheetAt(0);
 
 

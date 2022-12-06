@@ -8,6 +8,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -28,7 +29,7 @@ public class Main {
         if (trackingFolder.listFiles() == null) exit("No files found within folder");
         for (File file : Objects.requireNonNull(trackingFolder.listFiles())) {
             if (file.getName().contains("xlsx") || file.getName().contains("xls")) {
-                List<Long> trackingSet = ExcelUtils.parseTrackingNumbers(file);
+                List<Long> trackingSet = ExcelUtils.parseTrackingNumbers(new FileInputStream(file));
                 trackingSets.add(trackingSet);
             }
         }
