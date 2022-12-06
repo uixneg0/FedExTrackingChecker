@@ -1,6 +1,5 @@
 package FedExTrackerChecker.requests;
 
-import FedExTrackerChecker.Main;
 import FedExTrackerChecker.oauth.OAuthJsonParser;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -14,7 +13,7 @@ public class FedExRequest {
     public static String oAuthUrl = "https://apis.fedex.com/oauth/token";
     public static String getTrackingUrl = "https://apis.fedex.com/track/v1/trackingnumbers";
 
-    public static Response getTrackingResults(ArrayList<Long> trackingNumbers) throws IOException {
+    public static Response getTrackingResults(ArrayList<Long> trackingNumbers, String oAuthToken) throws IOException {
         JsonObject baseJson = new JsonObject();
         JsonArray trackingInfo = new JsonArray();
         for (Long trackingNumber : trackingNumbers) {
@@ -28,7 +27,7 @@ public class FedExRequest {
         HashMap<String, String> headerFields = new HashMap<>();
         headerFields.put("Content-Type", "application/json");
         headerFields.put("X-Locale", "en_US");
-        headerFields.put("Authorization", "Bearer " + Main.oAuthToken);
+        headerFields.put("Authorization", "Bearer " + oAuthToken);
         return jsonPostRequest(baseJson, headerFields, getTrackingUrl);
     }
 
@@ -57,17 +56,20 @@ public class FedExRequest {
             requestBuilder.addHeader(key, headerFields.get(key));
         }
         Request request = requestBuilder.build();
-        Response response = client.newCall(request).execute();
-        return response;
+        return client.newCall(request).execute();
     }
 
 
-    public static String getOAuthToken() throws IOException, IllegalAccessException {
+    public static String getNewOAuthToken() throws IOException, IllegalAccessException {
         HashMap<String, String> bodyFields = OAuthJsonParser.getOAuthFields();
+        if (bodyFields == null) return null;
         HashMap<String, String> headerFields = new HashMap<>();
         headerFields.put("content-type", "application/x-www-form-urlencoded");
         Response response = FedExRequest.sendOAuthRequest(bodyFields, headerFields, oAuthUrl);
-        if (response.body() == null) Main.exit("Response for OAuth token is null. Stopping program.");
+        if (response.body() == null){
+            System.out.println("Response for OAuth token is null.");
+            return null;
+        }
         String responseBody = response.body().string().replace("{", "").replace("}", "");
         String[] keyValuePairs = responseBody.split(",");
         for (String string : keyValuePairs) {

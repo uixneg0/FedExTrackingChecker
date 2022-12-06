@@ -19,7 +19,8 @@ public class Main {
 
 
     public static void main(String... args) throws IllegalAccessException, IOException, InvalidFormatException, InterruptedException {
-        oAuthToken = FedExRequest.getOAuthToken();
+        oAuthToken = FedExRequest.getNewOAuthToken();
+        if (oAuthToken == null) exit("OAuth Token is null.");
         trackingFolder = getUserTrackingFolder();
 
         if (trackingFolder.listFiles() == null) exit("No files found within folder");
@@ -34,7 +35,7 @@ public class Main {
         for (ArrayList<Long> trackingSet : trackingSets) {
             Thread t = new Thread(() -> {
                 try {
-                    ExcelUtils.dumpTrackingSet(trackingSet);
+                    ExcelUtils.dumpTrackingSet(trackingSet, trackingFolder.getPath(), oAuthToken);
                 } catch (IOException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }

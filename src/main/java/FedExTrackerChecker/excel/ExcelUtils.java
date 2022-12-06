@@ -1,6 +1,5 @@
 package FedExTrackerChecker.excel;
 
-import FedExTrackerChecker.Main;
 import FedExTrackerChecker.entities.RowData;
 import FedExTrackerChecker.requests.FedExRequest;
 import FedExTrackerChecker.requests.ResponseParser;
@@ -48,7 +47,7 @@ public class ExcelUtils {
         return trackingNumbers;
     }
 
-    public static void buildResultsFile(ArrayList<RowData> rowData) {
+    public static void buildResultsFile(ArrayList<RowData> rowData, String filePath) {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Tracking Results");
         int headers = 0;
@@ -83,7 +82,7 @@ public class ExcelUtils {
             String randomString = UUID.randomUUID().toString().substring(0, 4);
             LocalDateTime localDateTime = LocalDateTime.now();
             String time = localDateTime.getHour() + " " + localDateTime.getMinute();
-            File folder = new File(Main.getTrackingFolder() + "/CheckedTracking");
+            File folder = new File(filePath + "/CheckedTracking");
             folder.mkdirs();
             FileOutputStream out = new FileOutputStream(folder.getAbsolutePath() + "/" + rowData.get(0).getCustomerReference() + " " + time + " " + randomString + ".xlsx");
             workbook.write(out);
@@ -94,7 +93,11 @@ public class ExcelUtils {
         }
     }
 
-    public static void dumpTrackingSet(ArrayList<Long> trackingSet) throws IOException, InterruptedException {
+    /**
+     *
+     * Takes in a list of longs (tracking numbers). Segments the list into segments of 30 (FedEx max request size is 30 tracking numbers). Creates an Excel file and du
+     */
+    public static void dumpTrackingSet(ArrayList<Long> trackingSet, String filePath, String oAuthToken) throws IOException, InterruptedException {
         ArrayList<ArrayList<Long>> segmentedTracking = new ArrayList<>();
         ArrayList<Long> currSet = new ArrayList<>();
         int count = 0;
@@ -117,7 +120,7 @@ public class ExcelUtils {
                     new Thread(() -> {
                         Response response;
                         try {
-                            response = FedExRequest.getTrackingResults(trackingSegment);
+                            response = FedExRequest.getTrackingResults(trackingSegment, oAuthToken);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -145,6 +148,6 @@ public class ExcelUtils {
             rowData.addAll(parsedData);
         }
 
-        buildResultsFile(rowData);
+        buildResultsFile(rowData, filePath);
     }
 }

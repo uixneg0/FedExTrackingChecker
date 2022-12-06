@@ -1,6 +1,5 @@
 package FedExTrackerChecker.oauth;
 
-import FedExTrackerChecker.Main;
 import com.google.gson.Gson;
 import lombok.Getter;
 
@@ -22,16 +21,17 @@ public class OAuthJsonParser {
                 throw new RuntimeException(e);
             }
         }
-        Main.exit("Could not read FedExTrackerChecker.requests.OAuthJson file at: " + file.getAbsolutePath());
-        return new OAuthJson();
+        System.out.println("Could not read FedExTrackerChecker.requests.OAuthJson file at: " + file.getAbsolutePath());
+        return null;
     }
 
     public static HashMap<String, String> getOAuthFields() throws IllegalAccessException {
-        OAuthJson oAuthJsonParser = readJson();
+        OAuthJson oAuthJson = readJson();
+        if (oAuthJson == null) return null;
         HashMap<String, String> oAuthFields = new HashMap<>();
-        for (Field field : oAuthJsonParser.getClass().getDeclaredFields()) {
+        for (Field field : oAuthJson.getClass().getDeclaredFields()) {
             String fieldName = field.getName();
-            String fieldVal = (String) field.get(oAuthJsonParser);
+            String fieldVal = (String) field.get(oAuthJson);
             if (fieldVal != null) {
                 oAuthFields.put(fieldName, fieldVal);
             }
