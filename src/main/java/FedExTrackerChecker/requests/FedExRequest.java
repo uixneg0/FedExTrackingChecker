@@ -1,6 +1,8 @@
 package FedExTrackerChecker.requests;
 
+import FedExTrackerChecker.entities.OAuthResponse;
 import FedExTrackerChecker.oauth.OAuthJsonParser;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import okhttp3.*;
@@ -59,7 +61,6 @@ public class FedExRequest {
         return client.newCall(request).execute();
     }
 
-
     public static String getNewOAuthToken() throws IOException, IllegalAccessException {
         HashMap<String, String> bodyFields = OAuthJsonParser.getOAuthFields();
         if (bodyFields == null) return null;
@@ -70,14 +71,7 @@ public class FedExRequest {
             System.out.println("Response for OAuth token is null.");
             return null;
         }
-        String responseBody = response.body().string().replace("{", "").replace("}", "");
-        String[] keyValuePairs = responseBody.split(",");
-        for (String string : keyValuePairs) {
-            String[] a = string.split(":");
-            if (a[0].contains("access_token")) {
-                return a[1].replace("\"", "");
-            }
-        }
-        return null;
+        OAuthResponse oAuthResponse = new Gson().fromJson(response.body().string(), OAuthResponse.class);
+        return oAuthResponse.getAccessToken();
     }
 }
