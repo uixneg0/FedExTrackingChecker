@@ -15,7 +15,7 @@ public class FedExRequest {
     public static String oAuthUrl = "https://apis.fedex.com/oauth/token";
     public static String getTrackingUrl = "https://apis.fedex.com/track/v1/trackingnumbers";
 
-    public static Response getTrackingResults(ArrayList<Long> trackingNumbers, String oAuthToken) throws IOException {
+    public static Response getTrackingResults(ArrayList<Long> trackingNumbers, String oAuthToken) {
         JsonObject baseJson = new JsonObject();
         JsonArray trackingInfo = new JsonArray();
         for (Long trackingNumber : trackingNumbers) {
@@ -33,7 +33,7 @@ public class FedExRequest {
         return jsonPostRequest(baseJson, headerFields, getTrackingUrl);
     }
 
-    public static Response jsonPostRequest(JsonObject jsonObject, HashMap<String, String> headerFields, String url) throws IOException { // TODO actually make a reusable request function if I do more with this project
+    public static Response jsonPostRequest(JsonObject jsonObject, HashMap<String, String> headerFields, String url) { // TODO actually make a reusable request function if I do more with this project
         OkHttpClient client = new OkHttpClient();
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(url);
@@ -42,10 +42,15 @@ public class FedExRequest {
             requestBuilder.addHeader(key, headerFields.get(key));
         }
         Request request = requestBuilder.build();
-        return client.newCall(request).execute();
+        try {
+            return client.newCall(request).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public static Response sendOAuthRequest(HashMap<String, String> bodyFields, HashMap<String, String> headerFields, String url) throws IOException { // TODO actually make a reusable request function if I do more with this project
+    public static Response sendOAuthRequest(HashMap<String, String> bodyFields, HashMap<String, String> headerFields, String url) { // TODO actually make a reusable request function if I do more with this project
         OkHttpClient client = new OkHttpClient();
         FormBody.Builder builder = new FormBody.Builder();
         for (String key : bodyFields.keySet())
@@ -58,11 +63,17 @@ public class FedExRequest {
             requestBuilder.addHeader(key, headerFields.get(key));
         }
         Request request = requestBuilder.build();
-        return client.newCall(request).execute();
+        try {
+            return client.newCall(request).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public static String getNewOAuthToken() throws IOException, IllegalAccessException {
-        HashMap<String, String> bodyFields = OAuthJsonParser.getOAuthFields();
+    public static String getNewOAuthToken(){
+        HashMap<String, String> bodyFields = null;
+        bodyFields = OAuthJsonParser.getOAuthFields();
         if (bodyFields == null) return null;
         HashMap<String, String> headerFields = new HashMap<>();
         headerFields.put("content-type", "application/x-www-form-urlencoded");
@@ -71,7 +82,13 @@ public class FedExRequest {
             System.out.println("Response for OAuth token is null.");
             return null;
         }
-        OAuthResponse oAuthResponse = new Gson().fromJson(response.body().string(), OAuthResponse.class);
+        OAuthResponse oAuthResponse = null;
+        try {
+            oAuthResponse = new Gson().fromJson(response.body().string(), OAuthResponse.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
         return oAuthResponse.getAccessToken();
     }
 }

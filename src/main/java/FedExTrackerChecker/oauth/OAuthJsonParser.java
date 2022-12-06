@@ -25,13 +25,19 @@ public class OAuthJsonParser {
         return null;
     }
 
-    public static HashMap<String, String> getOAuthFields() throws IllegalAccessException {
+    public static HashMap<String, String> getOAuthFields(){
         OAuthJson oAuthJson = readJson();
         if (oAuthJson == null) return null;
         HashMap<String, String> oAuthFields = new HashMap<>();
         for (Field field : oAuthJson.getClass().getDeclaredFields()) {
             String fieldName = field.getName();
-            String fieldVal = (String) field.get(oAuthJson);
+            String fieldVal = null;
+            try {
+                fieldVal = (String) field.get(oAuthJson);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                return null;
+            }
             if (fieldVal != null) {
                 oAuthFields.put(fieldName, fieldVal);
             }

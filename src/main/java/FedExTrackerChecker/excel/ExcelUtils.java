@@ -12,13 +12,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
+
 
 public class ExcelUtils {
 
@@ -116,11 +114,7 @@ public class ExcelUtils {
             Thread thread =
                     new Thread(() -> {
                         Response response;
-                        try {
-                            response = FedExRequest.getTrackingResults(trackingSegment, oAuthToken);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                        response = FedExRequest.getTrackingResults(trackingSegment, oAuthToken);
                         responses.put(trackingSegment, response);
                     });
             threads.add(thread);
