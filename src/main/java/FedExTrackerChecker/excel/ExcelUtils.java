@@ -17,11 +17,17 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class ExcelUtils {
-    public static ArrayList<Long> getTrackingNumbers(File file) throws IOException, InvalidFormatException {
-        ArrayList trackingNumbers = new ArrayList();
+
+    /**
+     * Takes an XLSX/XLS file as arg and parses the tracking numbers from the file.
+     * Column header for tracking numbers must contain "tracking" as a substring.
+     */
+    public static List<Long> parseTrackingNumbers(File file) throws IOException, InvalidFormatException {
+        List<Long> trackingNumbers = new ArrayList<>();
         Workbook workbook = new XSSFWorkbook(file);
         Sheet sheet = workbook.getSheetAt(0);
 
@@ -42,12 +48,13 @@ public class ExcelUtils {
             Cell cell = row.getCell(trackingColumn);
             trackingNumbers.add((long) cell.getNumericCellValue());
         }
-
-        System.out.println(trackingNumbers);
         return trackingNumbers;
     }
 
-    public static void buildResultsFile(ArrayList<RowData> rowData, String filePath) {
+    /**
+     * Returns an Apache POI workbook from passed in list of row data.
+     */
+    public static Workbook buildWorkbook(ArrayList<RowData> rowData) {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Tracking Results");
         int headers = 0;
@@ -78,26 +85,16 @@ public class ExcelUtils {
             sheet.autoSizeColumn(i);
         }
 
-        try {
-            String randomString = UUID.randomUUID().toString().substring(0, 4);
-            LocalDateTime localDateTime = LocalDateTime.now();
-            String time = localDateTime.getHour() + " " + localDateTime.getMinute();
-            File folder = new File(filePath + "/CheckedTracking");
-            folder.mkdirs();
-            FileOutputStream out = new FileOutputStream(folder.getAbsolutePath() + "/" + rowData.get(0).getCustomerReference() + " " + time + " " + randomString + ".xlsx");
-            workbook.write(out);
-
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        return workbook;
     }
 
     /**
-     *
-     * Takes in a list of longs (tracking numbers). Segments the list into segments of 30 (FedEx max request size is 30 tracking numbers). Creates an Excel file and du
+     * Takes in a list of longs (tracking numbers).
+     * Segments the list into segments of 30 (FedEx max request size is 30 tracking numbers).
+     * Sends and parses requests for each segment of tracking numbers.
+     * Returns an Apache POI workbook based off all responses.
      */
-    public static void dumpTrackingSet(ArrayList<Long> trackingSet, String filePath, String oAuthToken) throws IOException, InterruptedException {
+    public static Workbook buildWorkbook(List<Long> trackingSet, String oAuthToken) throws IOException, InterruptedException {
         ArrayList<ArrayList<Long>> segmentedTracking = new ArrayList<>();
         ArrayList<Long> currSet = new ArrayList<>();
         int count = 0;
@@ -147,7 +144,6 @@ public class ExcelUtils {
             }
             rowData.addAll(parsedData);
         }
-
-        buildResultsFile(rowData, filePath);
+        return buildWorkbook(rowData);
     }
 }
