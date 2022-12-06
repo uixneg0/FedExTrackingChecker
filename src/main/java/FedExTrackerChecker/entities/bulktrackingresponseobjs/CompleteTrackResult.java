@@ -118,4 +118,145 @@ public class CompleteTrackResult {
         return ((((this.trackResults == rhs.trackResults) || ((this.trackResults != null) && this.trackResults.equals(rhs.trackResults))) && ((this.additionalProperties == rhs.additionalProperties) || ((this.additionalProperties != null) && this.additionalProperties.equals(rhs.additionalProperties)))) && ((this.trackingNumber == rhs.trackingNumber) || ((this.trackingNumber != null) && this.trackingNumber.equals(rhs.trackingNumber))));
     }
 
+
+    public String getPurchaseOrder() {
+        List<PackageIdentifier> packageIdentifiers = this.getPackageIdentifiers();
+        if (packageIdentifiers == null) return null;
+        for (PackageIdentifier packageIdentifier : packageIdentifiers) {
+            if (packageIdentifier.getType().equalsIgnoreCase("PURCHASE_ORDER")) {
+                List<String> values = packageIdentifier.getValues();
+                if (values != null) {
+                    for (String val : values) {
+                        if (val != null) {
+                            return val;
+                        }
+                    }
+                }
+            }
+
+        }
+        return null;
+    }
+
+    public String getCustomerReference() {
+        List<PackageIdentifier> packageIdentifiers = this.getPackageIdentifiers();
+        if (packageIdentifiers == null) return null;
+        for (PackageIdentifier packageIdentifier : packageIdentifiers) {
+            if (packageIdentifier.getType().equalsIgnoreCase("CUSTOMER_REFERENCE")) {
+                List<String> values = packageIdentifier.getValues();
+                if (values != null) {
+                    for (String val : values) {
+                        if (val != null) {
+                            return val;
+                        }
+                    }
+                }
+            }
+
+        }
+        return null;
+    }
+
+    public List<PackageIdentifier> getPackageIdentifiers() {
+        AdditionalTrackingInfo additionalTrackingInfo = this.getAdditionalTrackingInfo();
+        if (additionalTrackingInfo == null) return null;
+        return additionalTrackingInfo.getPackageIdentifiers();
+    }
+
+    public AdditionalTrackingInfo getAdditionalTrackingInfo() {
+        TrackResult trackResult = this.getFirstTrackResult();
+        if (trackResult == null) return null;
+        return trackResult.getAdditionalTrackingInfo();
+    }
+
+    public String getWeight() {
+        ShipmentDetails shipmentDetails = this.getShipmentDetails();
+        if (shipmentDetails == null || shipmentDetails.getWeight() == null || shipmentDetails.getWeight().size() == 0 || shipmentDetails.getWeight().get(0) == null)
+            return null;
+        return shipmentDetails.getWeight().get(0).getValue();
+    }
+
+    public ShipmentDetails getShipmentDetails() {
+        TrackResult trackResult = this.getFirstTrackResult();
+        return trackResult.getShipmentDetails();
+    }
+
+    public String getLatestDescription() {
+        LatestStatusDetail latestStatusDetail = this.getLatestStatusDetail();
+        if (latestStatusDetail == null) return null;
+        return latestStatusDetail.getDescription();
+    }
+
+    public LatestStatusDetail getLatestStatusDetail() {
+        TrackResult trackResult = this.getFirstTrackResult();
+        if (trackResult == null) return null;
+        return trackResult.getLatestStatusDetail();
+    }
+
+    public String getDeliveryDestinationServiceArea() {
+        DeliveryDetails deliveryDetails = this.getDeliveryDetails();
+        if (deliveryDetails == null) return null;
+        return deliveryDetails.getDestinationServiceArea();
+    }
+
+    public String getDeliveryReceivedBy() {
+        DeliveryDetails deliveryDetails = this.getDeliveryDetails();
+        if (deliveryDetails == null) return null;
+        return deliveryDetails.getReceivedByName();
+    }
+
+    public String getDeliveryAttempts() {
+        DeliveryDetails deliveryDetails = this.getDeliveryDetails();
+        if (deliveryDetails == null) return null;
+        return deliveryDetails.getDeliveryAttempts();
+    }
+
+    public String getDeliveryState() {
+        ActualDeliveryAddress actualDeliveryAddress = this.getActualDeliveryAddress();
+        if (actualDeliveryAddress == null) return null;
+        return actualDeliveryAddress.getStateOrProvinceCode();
+    }
+
+    public String getDeliveryCity() {
+        ActualDeliveryAddress actualDeliveryAddress = this.getActualDeliveryAddress();
+        if (actualDeliveryAddress == null) return null;
+        return actualDeliveryAddress.getCity();
+    }
+
+    public ActualDeliveryAddress getActualDeliveryAddress() {
+        DeliveryDetails deliveryDetails = this.getDeliveryDetails();
+        if (deliveryDetails == null) return null;
+        return deliveryDetails.getActualDeliveryAddress();
+    }
+
+    public DeliveryDetails getDeliveryDetails() {
+        TrackResult trackResult = this.getFirstTrackResult();
+        if (trackResult == null) return null;
+        return trackResult.getDeliveryDetails();
+    }
+
+    public String getDateAndTimeTime() {
+        DateAndTime dateAndTime = this.getDateAndTime();
+        if (dateAndTime == null) return null;
+        return dateAndTime.getDateTime();
+    }
+
+    public String getDateAndTimeType() {
+        DateAndTime dateAndTime = this.getDateAndTime();
+        if (dateAndTime == null) return null;
+        return dateAndTime.getType();
+    }
+
+
+    public DateAndTime getDateAndTime() {
+        TrackResult trackResult = this.getFirstTrackResult();
+        if (trackResult == null || trackResult.getDateAndTimes() == null || trackResult.getDateAndTimes().size() == 0)
+            return null;
+        return trackResult.getDateAndTimes().get(0);
+    }
+
+    public TrackResult getFirstTrackResult() {
+        if (this.getTrackResults() == null) return null;
+        return this.getTrackResults().get(0);
+    }
 }

@@ -25,162 +25,25 @@ public class ResponseParser {
         }
         List<CompleteTrackResult> completeTrackResults = parsedResponse.getOutput().getCompleteTrackResults();
         for (CompleteTrackResult completeTrackResult : completeTrackResults) {
-            String trackingNumber = getTrackingNumber(completeTrackResult);
-            TrackResult trackResult = getTrackResult(completeTrackResult); //TODO move all the static methods into bulk tracking response obj
+            String trackingNumber = completeTrackResult.getTrackingNumber();
 
-            DateAndTime dateAndTime = getDateAndTime(trackResult);
-            String dateAndTimeType = getDateAndTimeType(dateAndTime);
-            String dateAndTimeTime = getDateAndTimeTime(dateAndTime);
+            String dateAndTimeType = completeTrackResult.getDateAndTimeType();
+            String dateAndTimeTime = completeTrackResult.getDateAndTimeTime();
 
-            DeliveryDetails deliveryDetails = getDeliveryDetails(trackResult);
-            ActualDeliveryAddress actualDeliveryAddress = getActualDeliveryAddress(deliveryDetails);
-            String deliveryCity = getDeliveryCity(actualDeliveryAddress);
-            String deliveryState = getDeliveryState(actualDeliveryAddress);
+            String deliveryCity = completeTrackResult.getDeliveryCity();
+            String deliveryState = completeTrackResult.getDeliveryState();
 
-            String deliveryAttempts = getDeliveryAttempts(deliveryDetails);
-            String deliveryReceivedBy = getDeliveryReceivedBy(deliveryDetails);
+            String deliveryAttempts = completeTrackResult.getDeliveryAttempts();
+            String deliveryReceivedBy = completeTrackResult.getDeliveryReceivedBy();
 
-            LatestStatusDetail latestStatusDetail = getLatestStatusDetail(trackResult);
-            String latestDescription = getLatestDescription(latestStatusDetail);
+            String latestDescription = completeTrackResult.getLatestDescription();
 
-            ShipmentDetails shipmentDetails = getShipmentDetails(trackResult);
-            String weight = getWeight(shipmentDetails);
+            String weight = completeTrackResult.getWeight();
 
-            AdditionalTrackingInfo additionalTrackingInfo = getAdditionalTrackingInfo(trackResult);
-            List<PackageIdentifier> packageIdentifiers = getPackageIdentifiers(additionalTrackingInfo);
-            String customerReference = getCustomerReference(packageIdentifiers);
-            String purchaseOrder = getPurchaseOrder(packageIdentifiers);
+            String customerReference = completeTrackResult.getCustomerReference();
+            String purchaseOrder = completeTrackResult.getPurchaseOrder();
             rowDataList.add(new RowData(trackingNumber, dateAndTimeType, dateAndTimeTime, deliveryCity, deliveryState, deliveryAttempts, deliveryReceivedBy, latestDescription, weight, customerReference, purchaseOrder));
         }
         return rowDataList;
-    }
-
-    public static String getPurchaseOrder(List<PackageIdentifier> packageIdentifiers) {
-        if (packageIdentifiers == null) return null;
-        for (PackageIdentifier packageIdentifier : packageIdentifiers) {
-            if (packageIdentifier.getType().equalsIgnoreCase("PURCHASE_ORDER")) {
-                List<String> values = packageIdentifier.getValues();
-                if (values != null) {
-                    for (String val : values) {
-                        if (val != null) {
-                            return val;
-                        }
-                    }
-                }
-            }
-
-        }
-        return null;
-    }
-
-    public static String getCustomerReference(List<PackageIdentifier> packageIdentifiers) {
-        if (packageIdentifiers == null) return null;
-        for (PackageIdentifier packageIdentifier : packageIdentifiers) {
-            if (packageIdentifier.getType().equalsIgnoreCase("CUSTOMER_REFERENCE")) {
-                List<String> values = packageIdentifier.getValues();
-                if (values != null) {
-                    for (String val : values) {
-                        if (val != null) {
-                            return val;
-                        }
-                    }
-                }
-            }
-
-        }
-        return null;
-    }
-
-    public static List<PackageIdentifier> getPackageIdentifiers(AdditionalTrackingInfo additionalTrackingInfo) {
-        if (additionalTrackingInfo == null) return null;
-        return additionalTrackingInfo.getPackageIdentifiers();
-    }
-
-    public static AdditionalTrackingInfo getAdditionalTrackingInfo(TrackResult trackResult) {
-        if (trackResult == null) return null;
-        return trackResult.getAdditionalTrackingInfo();
-    }
-
-    public static String getWeight(ShipmentDetails shipmentDetails) {
-        if (shipmentDetails == null || shipmentDetails.getWeight() == null || shipmentDetails.getWeight().size() == 0 || shipmentDetails.getWeight().get(0) == null)
-            return null;
-        return shipmentDetails.getWeight().get(0).getValue();
-    }
-
-    public static ShipmentDetails getShipmentDetails(TrackResult trackResult) {
-        if (trackResult == null) return null;
-        return trackResult.getShipmentDetails();
-    }
-
-    public static String getLatestDescription(LatestStatusDetail latestStatusDetail) {
-        if (latestStatusDetail == null) return null;
-        return latestStatusDetail.getDescription();
-    }
-
-    public static LatestStatusDetail getLatestStatusDetail(TrackResult trackResult) {
-        if (trackResult == null) return null;
-        return trackResult.getLatestStatusDetail();
-    }
-
-    public static String getDeliveryDestinationServiceArea(DeliveryDetails deliveryDetails) {
-        if (deliveryDetails == null) return null;
-        return deliveryDetails.getDestinationServiceArea();
-    }
-
-    public static String getDeliveryReceivedBy(DeliveryDetails deliveryDetails) {
-        if (deliveryDetails == null) return null;
-        return deliveryDetails.getReceivedByName();
-    }
-
-    public static String getDeliveryAttempts(DeliveryDetails deliveryDetails) {
-        if (deliveryDetails == null) return null;
-        return deliveryDetails.getDeliveryAttempts();
-    }
-
-    public static String getDeliveryState(ActualDeliveryAddress actualDeliveryAddress) {
-        if (actualDeliveryAddress == null) return null;
-        return actualDeliveryAddress.getStateOrProvinceCode();
-    }
-
-    public static String getDeliveryCity(ActualDeliveryAddress actualDeliveryAddress) {
-        if (actualDeliveryAddress == null) return null;
-        return actualDeliveryAddress.getCity();
-    }
-
-    public static ActualDeliveryAddress getActualDeliveryAddress(DeliveryDetails deliveryDetails) {
-        if (deliveryDetails == null) return null;
-        return deliveryDetails.getActualDeliveryAddress();
-    }
-
-    public static DeliveryDetails getDeliveryDetails(TrackResult trackResult) {
-        if (trackResult == null) return null;
-        return trackResult.getDeliveryDetails();
-    }
-
-    public static String getDateAndTimeTime(DateAndTime dateAndTime) {
-        if (dateAndTime == null) return null;
-        return dateAndTime.getDateTime();
-    }
-
-    public static String getDateAndTimeType(DateAndTime dateAndTime) {
-        if (dateAndTime == null) return null;
-        return dateAndTime.getType();
-    }
-
-
-    public static DateAndTime getDateAndTime(TrackResult trackResult) {
-        if (trackResult == null || trackResult.getDateAndTimes() == null || trackResult.getDateAndTimes().size() == 0)
-            return null;
-        return trackResult.getDateAndTimes().get(0);
-    }
-
-    public static TrackResult getTrackResult(CompleteTrackResult completeTrackResult) {
-        if (completeTrackResult == null || completeTrackResult.getTrackResults() == null) return null;
-        return completeTrackResult.getTrackResults().get(0);
-    }
-
-    public static String getTrackingNumber(CompleteTrackResult completeTrackResult) {
-        if (completeTrackResult == null) return null;
-        return completeTrackResult.getTrackingNumber();
     }
 }

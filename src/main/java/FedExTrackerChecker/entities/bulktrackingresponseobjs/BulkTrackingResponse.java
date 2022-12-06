@@ -1,6 +1,7 @@
 package FedExTrackerChecker.entities.bulktrackingresponseobjs;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 
@@ -114,6 +115,12 @@ public class BulkTrackingResponse {
         }
         BulkTrackingResponse rhs = ((BulkTrackingResponse) other);
         return ((((this.output == rhs.output) || ((this.output != null) && this.output.equals(rhs.output))) && ((this.additionalProperties == rhs.additionalProperties) || ((this.additionalProperties != null) && this.additionalProperties.equals(rhs.additionalProperties)))) && ((this.transactionId == rhs.transactionId) || ((this.transactionId != null) && this.transactionId.equals(rhs.transactionId))));
+    }
+
+    public List<CompleteTrackResult> getCompleteTrackResults(){
+        Output output = this.getOutput();
+        if (output == null) return null;
+        return output.getCompleteTrackResults();
     }
 
 }
